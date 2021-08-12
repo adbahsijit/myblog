@@ -1,0 +1,44 @@
+# Do this into Azure VM
+=> Install AzureCLI into an ubuntu VM 
+  $ curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+=> Login into Azure CLI
+  $ az login
+=> Install docker
+  $ sudo apt install docker.io
+=> Provide permission to current user
+  $ sudo usermod -aG docker $USER
+=> Pull images from dockerhub
+  $ docker pull elasticsearch:7.9.2
+  $ docker pull logstash:7.9.2
+  $ docker pull kibana:7.9.2
+=> Create ACR
+  $ az acr create --resource-group Experiments --name registryx --sku Basic
+=> Login to ACR
+  $ az acr login --name registryx
+=> Tag docker images
+  $ docker tag elasticsearch:7.9.2 registryx.azurecr.io/base/elasticsearch:7.9.2
+  $ docker tag logstash:7.9.2 registryx.azurecr.io/base/logstash:7.9.2
+  $ docker tag kibana:7.9.2 registryx.azurecr.io/base/kibana:7.9.2
+=> Push the image
+  $ docker push registryx.azurecr.io/base/elasticsearch:7.9.2
+  $ docker push registryx.azurecr.io/base/logstash:7.9.2
+  $ docker push registryx.azurecr.io/base/kibana:7.9.2
+=> To see pushed images
+  $ az acr repository list --name registryx --output table
+=> Create an AKS cluster
+  $ az aks create --resource-group Experiments --name aks --node-count 1 --enable-addons monitoring --generate-ssh-keys
+=> Configure ACR integration for existing AKS cluster
+  $ az aks update -n aks -g Experiments --attach-acr registryx
+=> Get AKS credential
+  $ az aks get-credentials -g Experiments -n aks
+=> Install kubectl
+  $ curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+  $ chmod +x ./kubectl
+  $ sudo mv ./kubectl /usr/local/bin/kubectl
+=> Create a file for namespace - create_namespace.yaml
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: kube-logging
+=> Execute $ kubectl create -f create_namespace.yml
+=> Create a file for elasticsearch_service.yaml
