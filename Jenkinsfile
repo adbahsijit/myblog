@@ -3,7 +3,7 @@ pipeline {
   stages{
     stage('checkout code'){
       steps {
-        git branch: 'main', url: "${env.GIT_REPO_URL}"
+        git clone https://github.com/adbahsijit/myblog.git
       }
     }
   }
