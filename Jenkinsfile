@@ -1,9 +1,9 @@
 pipeline {
   agent any
   stages{
-    stage('checkout code'){
+    stage('Checkout code'){
       steps {
-        git clone https://github.com/adbahsijit/myblog.git
+        sh 'git clone https://github.com/adbahsijit/myblog.git'
       }
     }
   }
