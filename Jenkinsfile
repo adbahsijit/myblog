@@ -3,6 +3,7 @@ pipeline {
   stages{
     stage('Checkout code'){
       steps {
+        sh 'rm -rf myblog'
         sh 'git clone https://github.com/adbahsijit/myblog.git'
       }
     }
